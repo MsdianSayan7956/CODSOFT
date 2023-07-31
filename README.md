@@ -13,3 +13,5 @@ Please note that the information contained in this repository is provided for in
 
 
 ## LinkedIn
+
+www.linkedin.com/in/sayan-bhattacharjee-39952a200
