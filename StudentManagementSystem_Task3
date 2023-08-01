@@ -1,0 +1,216 @@
+import java.io.*;
+import java.util.*;
+
+// Student class to represent individual students
+class Student {
+    private String name;
+    private int rollNumber;
+    private String grade;
+
+    public String getName() {
+        return grade;
+    }
+
+    // Setter for grade
+    public void setName(String Name) {
+        this.name = Name;
+    }
+
+    public int getRollNumber() {
+        return rollNumber;
+    }
+
+    // Setter for grade
+    public void setRollNumber(int rollNumber) {
+        this.rollNumber = rollNumber;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    // Setter for grade
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    // Constructor to initialize Student object
+    public Student(String name, int rollNumber, String grade) {
+        this.name = name;
+        this.rollNumber = rollNumber;
+        this.grade = grade;
+    }
+
+    // Getters and Setters for the Student class
+    // ... (code unchanged)
+
+    // Override toString() method to display student information
+    @Override
+    public String toString() {
+        return "Name: " + name + ", Roll Number: " + rollNumber + ", Grade: " + grade;
+    }
+
+    // Method to check if the student object is valid (no empty fields)
+    public boolean isValid() {
+        return !name.trim().isEmpty() && rollNumber > 0 && !grade.trim().isEmpty();
+    }
+}
+
+// StudentManagementSystem class to manage the collection of students
+class StudentManagementSystem {
+    private List<Student> students;
+    private static final String DATA_FILE_PATH = "student_data.txt";
+
+    // Constructor to initialize the StudentManagementSystem object
+    public StudentManagementSystem() {
+        students = new ArrayList<>();
+        loadStudents(); // Load students from the file (if available)
+    }
+
+    // Add a student to the collection
+    public void addStudent(Student student) {
+        if (isValidStudent(student)) {
+            students.add(student);
+            saveStudents(); // Save students to the file after adding
+            System.out.println("Student added successfully!");
+        } else {
+            System.out.println("Invalid student data. Please make sure all fields are filled correctly.");
+        }
+    }
+
+    // Remove a student from the collection
+    public void removeStudent(Student student) {
+        students.remove(student);
+        saveStudents(); // Save students to the file after removing
+    }
+
+    // Search for a student by roll number
+    public Student searchStudentByRollNumber(int rollNumber) {
+        for (Student student : students) {
+            if (student.getRollNumber() == rollNumber) {
+                return student;
+            }
+        }
+        return null; // Student not found
+    }
+
+    // Display all students in the collection
+    public void displayAllStudents() {
+        for (Student student : students) {
+            System.out.println(student);
+        }
+    }
+
+    // Save students to a file
+    private void saveStudents() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(DATA_FILE_PATH))) {
+            for (Student student : students) {
+                if (isValidStudent(student)) {
+                    writer.println(student.getName() + "," + student.getRollNumber() + "," + student.getGrade());
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving data to file.");
+        }
+    }
+
+    // Load students from a file
+    private void loadStudents() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(DATA_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length == 3) {
+                    String name = parts[0].trim();
+                    int rollNumber = Integer.parseInt(parts[1].trim());
+                    String grade = parts[2].trim();
+                    Student student = new Student(name, rollNumber, grade);
+                    students.add(student);
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println("Error loading data from file.");
+        }
+    }
+
+    // Validate student data before adding or saving
+    private boolean isValidStudent(Student student) {
+        return student != null && student.isValid();
+    }
+}
+
+// Main class to run the Student Management System
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        StudentManagementSystem sms = new StudentManagementSystem();
+
+        while (true) {
+            System.out.println("\nWelcome to Student Management System");
+            System.out.println("1. Add a new student");
+            System.out.println("2. Remove a student");
+            System.out.println("3. Search for a student by roll number");
+            System.out.println("4. Display all students");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid choice. Please enter a valid integer.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter student name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter student roll number: ");
+                    int rollNumber = scanner.nextInt();
+                    scanner.nextLine(); // Consume the newline character
+                    System.out.print("Enter student grade: ");
+                    String grade = scanner.nextLine();
+                    Student newStudent = new Student(name, rollNumber, grade);
+                    // Validate the new student before adding
+                    if (newStudent.isValid()) {
+                        sms.addStudent(newStudent);
+                    } else {
+                        System.out.println("Invalid student data. Please make sure all fields are filled correctly.");
+                    }
+                    break;
+                case 2:
+                    System.out.print("Enter student roll number to remove: ");
+                    int rollNumberToRemove = scanner.nextInt();
+                    Student studentToRemove = sms.searchStudentByRollNumber(rollNumberToRemove);
+                    if (studentToRemove != null) {
+                        sms.removeStudent(studentToRemove);
+                        System.out.println("Student removed successfully!");
+                    } else {
+                        System.out.println("Student not found.");
+                    }
+                    break;
+                case 3:
+                    System.out.print("Enter student roll number to search: ");
+                    int rollNumberToSearch = scanner.nextInt();
+                    Student searchedStudent = sms.searchStudentByRollNumber(rollNumberToSearch);
+                    if (searchedStudent != null) {
+                        System.out.println("Student found: " + searchedStudent);
+                    } else {
+                        System.out.println("Student not found.");
+                    }
+                    break;
+                case 4:
+                    System.out.println("List of all students:");
+                    sms.displayAllStudents();
+                    break;
+                case 5:
+                    System.out.println("Exiting Student Management System. Goodbye!");
+                    scanner.close();
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
